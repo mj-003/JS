@@ -5,7 +5,7 @@ import subprocess
 import sys
 from typing import List
 
-from utils import *
+from utilities import *
 
 
 def list_backups() -> List[Dict[str, str]]:

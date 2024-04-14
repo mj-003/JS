@@ -4,7 +4,7 @@ import subprocess
 import sys
 from datetime import datetime
 
-from utils import *
+from utilities import *
 
 
 def create_backup(src_directory: str) -> None:
