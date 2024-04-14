@@ -23,7 +23,7 @@ def follow(file_name: str, lines: int = 10) -> None:
     try:
         with open(file_name, 'r') as file:
             tail(file_name, lines)
-            file.seek(0, os.SEEK_END)
+            file.seek(0, os.SEEK_END)   # Move the cursor to the end of the file
             while True:
                 current_position = file.tell()  # Get the current position of the cursor
                 line = file.readline()

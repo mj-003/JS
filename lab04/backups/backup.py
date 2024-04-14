@@ -18,20 +18,41 @@ def create_backup(src_directory: str) -> None:
 
     backup_name = f"{timestamp}-{dirname}{ext}"
     backup_path = os.path.join(backup_dir, backup_name)
-    os.chdir(os.path.dirname(src_directory))
 
     # Creating the archive using tar
-    subprocess.run(["tar", "-czf", backup_path, dirname])
+    # c: create a new archive
+    # z: compress the archive using gzip
+    # f: specify the filename of the archive
+    # -C: change to the directory before processing the following arguments
 
-    # Writing to history
+    subprocess.run(["tar", "-czf", backup_path, "-C", os.path.dirname(src_directory), dirname])
+
+    # Write the backup record to the history file
+    write_to_history(src_directory, backup_name)
+
+    print(f"File backup created: {backup_path}")
+
+
+# Write the backup record to the history file
+def write_to_history(src_directory, backup_name) -> None:
+    backup_dir = get_backup_dir()
+    history_file_path = os.path.join(backup_dir, "backup_history.json")
+
+    if not os.path.exists(history_file_path):
+        with open(history_file_path, "w") as f:
+            json.dump([], f)
+
     record = {
         "date": datetime.now().isoformat(),
         "location": os.path.abspath(src_directory),
         "backup_file": backup_name,
     }
-    write_to_history(record)
 
-    print(f"File backup created: {backup_path}")
+    with open(history_file_path, "r+") as f:
+        history = json.load(f)
+        history.append(record)
+        f.seek(0)
+        json.dump(history, f, indent=4)
 
 
 if __name__ == "__main__":

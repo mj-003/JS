@@ -14,7 +14,7 @@ def calculate_stats(file_path):
         lines = output.strip().split("\n")
         headers = lines[0].split(",")
         values = lines[1].split(",")
-        file_stats = dict(zip(headers, values))
+        file_stats = dict(zip(headers, values))     # Create a dictionary from the headers and values
         return file_stats
     except subprocess.CalledProcessError as e:
         print(f"Error processing file {file_path}: {e}")
@@ -27,9 +27,9 @@ def get_stats(directory_path):
 
     for root, dirs, files in os.walk(directory_path):
         for file in files:
-            file_path = os.path.join(root, file)
+            file_path = os.path.join(root, file)    # Get the full path
             if os.path.isfile(file_path):
-                file_stats = calculate_stats(file_path)
+                file_stats = calculate_stats(file_path)     # Calculate statistics
                 if file_stats:
                     files_stats.append(file_stats)
 
@@ -39,11 +39,11 @@ def get_stats(directory_path):
 # Get summary statistics for all files
 def get_summary_stats(files_stats):
     summary_stats = {"Total files": len(files_stats),
-                     "Total lines": sum(int(stats["Total Lines"]) for stats in files_stats),
-                     "Total words": sum(int(stats["Total Words"]) for stats in files_stats),
-                     "Total chars": sum(int(stats["Total Characters"]) for stats in files_stats),
-                     "Most frequent word": max((stats["Most Frequent Word"] for stats in files_stats), key=len),
-                     "Most frequent char": max((stats["Most Frequent Character"] for stats in files_stats), key=len)}
+                     "Total lines": sum(int(stats["number_of_lines"]) for stats in files_stats),
+                     "Total words": sum(int(stats["number_of_words"]) for stats in files_stats),
+                     "Total chars": sum(int(stats["number_of_characters"]) for stats in files_stats),
+                     "Most frequent word": max((stats["most_common_word"] for stats in files_stats), key=len),
+                     "Most frequent char": max((stats["most_common_character"] for stats in files_stats), key=len)}
     return summary_stats
 
 
@@ -56,7 +56,7 @@ def main():
     files_stats = get_summary_stats(get_stats(directory_path))
     if files_stats:
         print("Results:")
-        print(json.dumps(files_stats, indent=4))
+        print(json.dumps(files_stats, indent=4))    # ident - number of spaces to indent each level of the JSON output
 
 
 if __name__ == "__main__":

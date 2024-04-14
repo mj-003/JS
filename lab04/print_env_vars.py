@@ -9,6 +9,7 @@ import sys
 def filter_env_vars(keywords=None):
     if not keywords:
         return os.environ.keys()
+    # Return a list of environment variables that contain any of the keywords
     return sorted([env for env in os.environ if any(keyword in env for keyword in keywords)])
 
 
@@ -19,6 +20,6 @@ def print_env_vars(env_vars):
 
 
 if __name__ == '__main__':
-    my_keywords = sys.argv[1:]
+    my_keywords = sys.argv[1:]  # Get the keywords from the command line
     filtered_env_vars = filter_env_vars(my_keywords)
     print_env_vars(filtered_env_vars)
