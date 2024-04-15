@@ -14,13 +14,14 @@ public class Main {
         }
 
         String fileName = args[0];
+
         int charCount = 0;
         int wordCount = 0;
         int lineCount = 0;
         Map<String, Integer> wordFrequency = new HashMap<String, Integer>();
         Map<String, Integer> charFrequency = new HashMap<String, Integer>();
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) 
+        try (BufferedReader reader = new BufferedReader(new FileReader(fileName)))
         {
             String line;
             while ((line = reader.readLine()) != null) 
@@ -38,7 +39,7 @@ public class Main {
                     }
                 }
             }
-        } 
+        }
         catch (IOException e) 
         {
             e.printStackTrace();

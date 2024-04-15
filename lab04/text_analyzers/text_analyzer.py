@@ -25,10 +25,10 @@ def calculate_stats(file_path):
 def get_stats(directory_path):
     files_stats = []
 
-    for root, dirs, files in os.walk(directory_path):
+    for root, dirs, files in os.walk(directory_path):   # Walk through the directory tree
         for file in files:
             file_path = os.path.join(root, file)    # Get the full path
-            if os.path.isfile(file_path):
+            if os.path.isfile(file_path) and not file_path.endswith(".DS_Store"):
                 file_stats = calculate_stats(file_path)     # Calculate statistics
                 if file_stats:
                     files_stats.append(file_stats)
@@ -37,13 +37,15 @@ def get_stats(directory_path):
 
 
 # Get summary statistics for all files
-def get_summary_stats(files_stats):
+def get_summary_stats(files_stats: list) -> dict:
+    print(files_stats)
     summary_stats = {"Total files": len(files_stats),
                      "Total lines": sum(int(stats["number_of_lines"]) for stats in files_stats),
                      "Total words": sum(int(stats["number_of_words"]) for stats in files_stats),
                      "Total chars": sum(int(stats["number_of_characters"]) for stats in files_stats),
                      "Most frequent word": max((stats["most_common_word"] for stats in files_stats), key=len),
-                     "Most frequent char": max((stats["most_common_character"] for stats in files_stats), key=len)}
+                     "Most frequent char": max((stats["most_common_character"] for stats in files_stats), key=len)
+                     }
     return summary_stats
 
 
