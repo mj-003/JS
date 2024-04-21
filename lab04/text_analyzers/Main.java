@@ -67,7 +67,7 @@ public class Main {
             }
         }
 
-        System.out.println("path,number_of_characters,number_of_words,number_of_lines,most_common_character,most_common_word");
-        System.out.printf("%s,%d,%d,%d,%c,%s\n", fileName, charCount, wordCount, lineCount, mostFrequentChar, mostFrequentWord);
+        System.out.println("path,number_of_characters,number_of_words,number_of_lines,most_common_character,most_common_word,word_frequency,char_frequency");
+        System.out.printf("%s,%d,%d,%d,%c,%s,%d,%d\n", fileName, charCount, wordCount, lineCount, mostFrequentChar, mostFrequentWord, maxWordFrequency, maxCharFrequency);
     }
 }

@@ -3,6 +3,7 @@
 
 import argparse
 import os
+import sys
 import time
 from collections import deque
 
@@ -55,5 +56,9 @@ if __name__ == '__main__':
             follow(args.filename, args.lines)
         else:
             tail(args.filename, args.lines)
+    elif not sys.stdin.isatty():
+        for line in deque(sys.stdin, args.lines):
+            print(line, end="")
     else:
-        print("Please provide a filename.")
+        print("Please provide a valid file name.")
+

@@ -22,7 +22,7 @@ def calculate_stats(file_path):
 
 
 # Get statistics for all files in a directory
-def get_stats(directory_path):
+def get_stats(directory_path) -> list:
     files_stats = []
 
     for root, dirs, files in os.walk(directory_path):   # Walk through the directory tree
@@ -38,13 +38,13 @@ def get_stats(directory_path):
 
 # Get summary statistics for all files
 def get_summary_stats(files_stats: list) -> dict:
-    print(files_stats)
+    # print(files_stats)
     summary_stats = {"Total files": len(files_stats),
                      "Total lines": sum(int(stats["number_of_lines"]) for stats in files_stats),
                      "Total words": sum(int(stats["number_of_words"]) for stats in files_stats),
                      "Total chars": sum(int(stats["number_of_characters"]) for stats in files_stats),
-                     "Most frequent word": max((stats["most_common_word"] for stats in files_stats), key=len),
-                     "Most frequent char": max((stats["most_common_character"] for stats in files_stats), key=len)
+                     "Most frequent word": max((stats["most_common_word"] for stats in files_stats), key=lambda x: files_stats.count(x)),
+                     "Most frequent char": max((stats["most_common_character"] for stats in files_stats), key=lambda x: files_stats.count(x)),
                      }
     return summary_stats
 

@@ -16,7 +16,7 @@ def filter_env_vars(keywords=None):
 # Print environment variables
 def print_env_vars(env_vars):
     for env_var in env_vars:
-        print(f'{env_var}={os.environ[env_var]}')
+        print(f'{env_var} = {os.environ[env_var]}')
 
 
 if __name__ == '__main__':

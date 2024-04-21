@@ -39,8 +39,8 @@ def write_to_history(src_directory, backup_name) -> None:
     history_file_path = os.path.join(backup_dir, "backup_history.json")
 
     if not os.path.exists(history_file_path):
-        with open(history_file_path, "w") as f:
-            json.dump([], f)
+        with open(history_file_path, "w") as file:
+            json.dump([], file)
 
     record = {
         "date": datetime.now().isoformat(),
@@ -48,16 +48,16 @@ def write_to_history(src_directory, backup_name) -> None:
         "backup_file": backup_name,
     }
 
-    with open(history_file_path, "r+") as f:
-        history = json.load(f)
+    with open(history_file_path, "r+") as file:
+        history = json.load(file)
         history.append(record)
-        f.seek(0)
-        json.dump(history, f, indent=4)
+        file.seek(0)
+        json.dump(history, file, indent=4)
 
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: python backup.py <directory-path>")
+        print("Wrong number of arguments.")
         sys.exit(1)
 
     source_directory: str = sys.argv[1]
