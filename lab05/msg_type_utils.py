@@ -1,9 +1,10 @@
 import logging
 import re
 from enum import Enum
-from get_from_log import get_user_from_log
+from log_utils import get_user_from_log
 
 
+# Enum for message types
 class MessageType(Enum):
     SUCCESSFUL_LOGIN = "successful login"
     FAILED_LOGIN = "failed login"
@@ -15,6 +16,7 @@ class MessageType(Enum):
     OTHER = "other"
 
 
+# Determines the message type of log entry
 def get_msg_type(entry) -> MessageType:
     if re.match(r'Accepted (password|publickey) for', entry.event_description, re.IGNORECASE):
         return MessageType.SUCCESSFUL_LOGIN
@@ -41,6 +43,7 @@ def get_msg_type(entry) -> MessageType:
         return MessageType.OTHER
 
 
+# Analyzes the message type of log entry
 def analyze_msg_type(entry, logger: logging.Logger):
     msg_type = get_msg_type(entry)
 

@@ -2,7 +2,7 @@ import logging
 
 from brute_force import detect_bruteforce
 from read_logs import read_logs_from_file
-from get_from_log import *
+from log_utils import *
 from calculate_stats import *
 from msg_type_utils import get_msg_type
 import argparse
@@ -20,6 +20,7 @@ class Command(Enum):
 
 
 def main():
+    # argument parser
     parser = argparse.ArgumentParser(description="SSH Log Analyzer")
 
     # arguments
@@ -28,7 +29,7 @@ def main():
         "--log-level",
         choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
         help="Set the logging level",
-        default="INFO",
+        default="CRITICAL"
     )
 
     # subparsers
@@ -37,25 +38,54 @@ def main():
     subparsers.add_parser(Command.IPV4S.value, help="Get all IPv4 from logs in file")
     subparsers.add_parser(Command.USER.value, help="Get all users from logs in file")
     subparsers.add_parser(Command.MSG_TYPE.value, help="Get all msg types from logs in file")
-
-    random_users_parser = subparsers.add_parser(Command.GET_RANDOM_LOGS.value, help="Get random logs from random user")
-    random_users_parser.add_argument("--count", type=int, default=10, help="Number of random logs to retrieve")
-
-    stats_parser = subparsers.add_parser(Command.STATS.value,
-                                         help="Get the average session duration and standard deviation")
-    stats_parser.add_argument("--group-by-user", action="store_true", default=False, help="Group stats by user")
-
     subparsers.add_parser(Command.MOST_AND_LEAST_FREQUENT_USERS.value, help="Get the most and least frequent user")
 
-    brute_force_parser = subparsers.add_parser(Command.BRUTE_FORCE.value, help="Get the brute force attempts")
-    brute_force_parser.add_argument("--max-interval", type=int, default=100, help="Max interval between attempts")
-    brute_force_parser.add_argument("--max-attempts", type=int, default=60, help="Max attempts")
-    brute_force_parser.add_argument("--single-user", action="store_true", default=False, help="Single user")
+    # parser for get_random_logs with count argument
+    random_users_parser = subparsers.add_parser(Command.GET_RANDOM_LOGS.value, help="Get random logs from random user")
+    random_users_parser.add_argument(
+        "--count",
+        type=int,
+        default=10,
+        help="Number of random logs to retrieve"
+    )
 
+    # parser for stats with group-by-user argument
+    stats_parser = subparsers.add_parser(Command.STATS.value,
+                                         help="Get the average session duration and standard deviation")
+    stats_parser.add_argument(
+        "--group-by-user",
+        action="store_true",
+        default=False,
+        help="Group stats by user"
+    )
+
+    # parser for brute_force with max-interval, max-attempts, and single-user arguments
+    brute_force_parser = subparsers.add_parser(Command.BRUTE_FORCE.value, help="Get the brute force attempts")
+    brute_force_parser.add_argument(
+        "--max-interval",
+        type=int,
+        default=100,
+        help="Max interval between attempts"
+    )
+    brute_force_parser.add_argument(
+        "--max-attempts",
+        type=int,
+        default=60,
+        help="Max attempts"
+    )
+    brute_force_parser.add_argument(
+        "--single-user",
+        action="store_true",
+        default=False,
+        help="Single user"
+    )
+
+    # parse arguments
     args = parser.parse_args()
     logs = read_logs_from_file(args.logfile)
     logger = logging.getLogger()
 
+    # set log level
     match args.log_level:
         case "DEBUG":
             logger.setLevel(logging.DEBUG)
@@ -68,6 +98,7 @@ def main():
         case "CRITICAL":
             logger.setLevel(logging.CRITICAL)
 
+    # switch case for subcommands
     match args.subcommand:
         case Command.IPV4S.value:
             for log in logs:

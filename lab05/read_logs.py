@@ -1,12 +1,13 @@
 import logging
 import sys
 
-from extract_data import *
+from log_utils import extract_data
 from msg_type_utils import *
 
+# Set up logging
 logger = logging.getLogger()
 
-logger.setLevel(logging.CRITICAL)
+logger.setLevel(logging.DEBUG)
 
 stdout_handler = logging.StreamHandler(sys.stdout)
 stderr_handler = logging.StreamHandler(sys.stderr)
@@ -22,6 +23,7 @@ logger.addHandler(stdout_handler)
 logger.addHandler(stderr_handler)
 
 
+# Reads log entries from a file
 def read_logs_from_file(file_name: str):
     try:
         with open(file_name, 'r') as file:
