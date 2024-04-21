@@ -1,11 +1,12 @@
 import logging
 import sys
+
 from extract_data import *
 from msg_type_utils import *
 
 logger = logging.getLogger()
 
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.CRITICAL)
 
 stdout_handler = logging.StreamHandler(sys.stdout)
 stderr_handler = logging.StreamHandler(sys.stderr)
@@ -22,11 +23,6 @@ logger.addHandler(stderr_handler)
 
 
 def read_logs_from_file(file_name: str):
-    """
-    Reads log entries from a file and extracts data using LogExtractor.
-
-    :param file_name: Path to the log file.
-    """
     try:
         with open(file_name, 'r') as file:
             for line in file:
@@ -40,6 +36,3 @@ def read_logs_from_file(file_name: str):
         print(f"File {file_name} not found.")
 
 
-file_path = "/Users/m_juchiewicz/Desktop/studia/semestr-4/JS/lab05/data/OpenSSH_2k.log"
-for log in read_logs_from_file(file_path):
-    print(log)

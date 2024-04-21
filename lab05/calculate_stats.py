@@ -1,18 +1,19 @@
-from collections import defaultdict
-from random import random
-from typing import List, Tuple
+import random
+import datetime
+from typing import List, Tuple, Iterable
 import statistics
 
 from extract_data import LogEntry
 from get_from_log import get_user_from_log
+from msg_type_utils import get_msg_type, MessageType
 
 
 # a) zwraca n logów z losowo wybranego użytkownika
-def get_random_user_logs(logs: List[LogEntry], n: int) -> List[LogEntry]:
-    users_with_logs = filter(lambda log: get_user_from_log(log.event_description) is not None, logs)
-    user = random.choice(list(users_with_logs))
+def get_random_user_logs(logs: Iterable[LogEntry], n: int) -> List[LogEntry]:
+    users_with_logs = list(filter(lambda log: get_user_from_log(log) is not None, logs))
+    user_name = get_user_from_log(random.choice(users_with_logs))
 
-    user_logs = [log for log in logs if get_user_from_log(log.event_description) == get_user_from_log(user)]
+    user_logs = [log for log in logs if get_user_from_log(log) == user_name]
     return random.sample(user_logs, min(n, len(user_logs)))
 
 
@@ -20,51 +21,54 @@ def get_random_user_logs(logs: List[LogEntry], n: int) -> List[LogEntry]:
 #   I. globalnie, dla całego pliku z logami,
 #   II. dla każdego użytkownika niezależnie.
 
-def get_users_sessions(logs: List[LogEntry]) -> dict[str, Tuple[List[int], float, float]]:
-    user_sessions = defaultdict(list)
+def get_avg_duration_and_deviation(logs: Iterable[LogEntry]) -> Tuple[float, float]:
+    session_starts: dict[int, str] = {}
+    session_durations = []
 
     for log in logs:
-        user = get_user_from_log(log.event_description)
         if "session opened" in log.event_description:
-            user_sessions[user].append(log.timestamp)
-        elif "session closed" in log.event_description:
-            starts = user_sessions[user]
-            if starts:
-                start = starts.pop()
-                duration = (log.timestamp - start).total_seconds()
-                user_sessions[user].append(duration)
+            session_starts[log.pid] = log.timestamp
 
-    user_durations = {}
-    for user, durations in user_sessions.items():
-        session_durations = durations[1::2]
-        if session_durations:
-            mean_duration = statistics.mean(session_durations)
-            std_duration = statistics.stdev(session_durations)
-            user_durations[user] = (session_durations, mean_duration, std_duration)
+        elif "session closed" in log.event_description and log.pid in session_starts:
+            start_time = session_starts.pop(log.pid, None)
+            if start_time:
+                start_ = datetime.datetime.strptime(start_time, "%b %d %H:%M:%S")
+                end_ = datetime.datetime.strptime(log.timestamp, "%b %d %H:%M:%S")
+                duration = (end_ - start_).total_seconds()
+                session_durations.append(duration)
 
-    return user_durations
-
-
-def get_stats_for_all(logs: List[LogEntry]) -> Tuple[float, float]:
-    users_durations = get_users_sessions(logs)
-    all_durations = [duration for durations, _, _ in users_durations.values() for duration in durations]
-    return statistics.mean(all_durations), statistics.stdev(all_durations)
+    if session_durations:
+        average_duration = statistics.mean(session_durations)
+        std_deviation = (statistics.stdev(session_durations) if len(session_durations) > 1 else 0.0)
+        return average_duration, std_deviation
+    else:
+        return 0.0, 0.0
 
 
-def get_stats_for_user(logs: List[LogEntry], user: str) -> tuple:
-    users_durations = get_users_sessions(logs)
-    return users_durations[user][1:]
+def get_stats_grouped_by_user(logs: Iterable[LogEntry]) -> dict[str, Tuple[float, float]]:
+    user_stats: dict[str, tuple[float, float]] = {}
+
+    users = set([get_user_from_log(log) for log in logs])
+
+    for user in users:
+        user_logs = [log for log in logs if get_user_from_log(log) == user]
+        user_stats[user] = get_avg_duration_and_deviation(user_logs)
+
+    return user_stats
 
 
 # c) Oblicza użytkowników, którzy logowali się najrzadziej i najczęściej.
+def get_most_and_least_frequent_users(logs: Iterable[LogEntry]):
+    user_logins: dict[str, int] = {}
 
-def get_least_frequent_users(logs: List[LogEntry]) -> List[str]:
-    users_sessions = get_users_sessions(logs)
-    min_sessions = min(len(sessions) for sessions, _, _ in users_sessions.values())
-    return [user for user, (sessions, _, _) in users_sessions.items() if len(sessions) == min_sessions]
+    for log in logs:
+        user_name = get_user_from_log(log)
+        if user_name and get_msg_type(log) == MessageType.SUCCESSFUL_LOGIN:
+            user_logins[user_name] = user_logins.get(user_name, 0) + 1
+
+    most_freq_user = max(user_logins, key=lambda user: user_logins[user])
+    least_freq_user = min(user_logins, key=lambda user: user_logins[user])
+
+    return most_freq_user, least_freq_user
 
 
-def get_most_frequent_users(logs: List[LogEntry]) -> List[str]:
-    users_sessions = get_users_sessions(logs)
-    max_sessions = max(len(sessions) for sessions, _, _ in users_sessions.values())
-    return [user for user, (sessions, _, _) in users_sessions.items() if len(sessions) == max_sessions]
