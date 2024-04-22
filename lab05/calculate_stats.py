@@ -8,10 +8,11 @@ from msg_type_utils import get_msg_type, MessageType
 
 # a) return n random log entries for a given user
 def get_random_user_logs(logs: Iterable[LogEntry], n: int) -> List[LogEntry]:
+    logs = list(logs)
     users_with_logs = list(filter(lambda log: get_user_from_log(log) is not None, logs))  # filter out logs without user
     user_name = get_user_from_log(random.choice(users_with_logs))
-
     user_logs = [log for log in logs if get_user_from_log(log) == user_name]  # get all logs for the user
+    print(user_logs)
     return random.sample(user_logs, min(n, len(user_logs)))  # return n random logs for the user
 
 
@@ -19,6 +20,7 @@ def get_random_user_logs(logs: Iterable[LogEntry], n: int) -> List[LogEntry]:
 #   I. for all users
 
 def get_avg_duration_and_deviation(logs: Iterable[LogEntry]) -> Tuple[float, float]:
+    logs = list(logs)
     session_starts: dict[int, str] = {}
     session_durations = []
 
@@ -45,6 +47,7 @@ def get_avg_duration_and_deviation(logs: Iterable[LogEntry]) -> Tuple[float, flo
 # b) calculate the average session duration and standard deviation for all users
 #   II. grouped by user
 def get_stats_grouped_by_user(logs: Iterable[LogEntry]) -> dict[str, Tuple[float, float]]:
+    logs = list(logs)
     user_stats: dict[str, tuple[float, float]] = {}
 
     users = set([get_user_from_log(log) for log in logs])  # get all unique users
@@ -59,6 +62,7 @@ def get_stats_grouped_by_user(logs: Iterable[LogEntry]) -> dict[str, Tuple[float
 
 # c) Calculate the most and least frequent users
 def get_most_and_least_frequent_users(logs: Iterable[LogEntry]):
+    logs = list(logs)
     user_logins: dict[str, int] = {}
 
     for log in logs:

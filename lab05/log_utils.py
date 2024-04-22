@@ -2,15 +2,14 @@ import re
 from collections import namedtuple
 from typing import List
 
-# Regular expression pattern for extracting the data
+# Regular expression patterns for extracting the data
 log_pattern = re.compile(r"(?P<timestamp>\w{3}\s\d{1,2}\s\d{2}:\d{2}:\d{2})\s(?P<hostname>\w+)\s("
                          r"?P<app_component>\w+)\[(?P<pid>\d+)]:\s(?P<event_description>.+)")
 
-
-# Regular expression patterns for extracting the data
 user_pattern = re.compile(r"(invalid user |Invalid user |Failed password for invalid user |Failed password for "
                           r"|Accepted password for |session opened for user |session closed for user "
                           r"|user=)(?P<username>\w+)")
+
 ipv4_pattern = re.compile(r"\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b")
 
 
@@ -29,7 +28,7 @@ def extract_data(log: str) -> LogEntry:
         event_description = match.group("event_description")
         return LogEntry(timestamp, hostname, app_component, pid, event_description)
     else:
-        raise ValueError("Invalid log entry format")
+        print(f"Invalid log entry format: {log}")
 
 
 # Extracts the username from a log entry

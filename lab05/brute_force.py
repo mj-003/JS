@@ -1,34 +1,31 @@
 import re
 from collections import defaultdict
 from datetime import datetime
+from log_utils import LogEntry
 
 from log_utils import get_user_from_log, get_ipv4_from_log
 
 
-def detect_bruteforce(logs, max_interval=100, max_attempts=60, single_user=False):
+def detect_bruteforce(logs, max_interval, max_attempts, single_user=False):
     # Check if max_interval and max_attempts are positive integers
     if max_interval < 0 or max_attempts < 0:
         print("Parameters must be positive integers.")
         return
 
     # Regular expression patterns
-    failed_password_pattern = r'Failed password for (\S+).*'
     repeat_pattern = r'message repeated (\d+) times:'
+    failed_password_pattern = r'Failed password for'
 
     # Dictionary to store IP attempts
     ip_attempts = defaultdict(list)
 
     # Iterate through logs
+    logs = list(logs)
     for log in logs:
         user = get_user_from_log(log)
 
-        # If user is not found, extract from log message
-        if user is None:
-            user_match = re.search(failed_password_pattern, log[-1])
-            user = user_match.group(1) if user_match else None
-
         # Continue to next log if user is not found or log does not contain failed password attempt
-        if not user or not re.search(failed_password_pattern, log[-1]):
+        if not user or not re.search(failed_password_pattern, log.event_description):
             continue
 
         ip = get_ipv4_from_log(log)
@@ -41,12 +38,12 @@ def detect_bruteforce(logs, max_interval=100, max_attempts=60, single_user=False
         ip_key = ip[-1] if not single_user else f"{ip[-1]} {user}"
 
         # Append log timestamp to IP attempts
-        ip_attempts[ip_key].append(log[0])
+        ip_attempts[ip_key].append(log.timestamp)
 
         # Extend IP attempts if log contains repeat pattern
-        if repeat_match := re.search(repeat_pattern, log[-1]):
+        if repeat_match := re.search(repeat_pattern, log.event_description):
             times = int(repeat_match.group(1))
-            ip_attempts[ip_key].extend([log[0]] * (times - 1))
+            ip_attempts[ip_key].extend([log.timestamp] * (times - 1))
 
         # Check if number of attempts exceeds max_attempts
         if len(ip_attempts[ip_key]) >= max_attempts:

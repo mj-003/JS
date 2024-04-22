@@ -29,7 +29,7 @@ def main():
         "--log-level",
         choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
         help="Set the logging level",
-        default="CRITICAL"
+        default="DEBUG"
     )
 
     # subparsers
