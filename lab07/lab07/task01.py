@@ -46,7 +46,7 @@ def make_alpha_dict(string: str) -> dict[str, list[str]]:
     }
 
 
-print(make_alpha_dict("ona i on"))
+print(make_alpha_dict("ona i on on"))
 
 
 # e) Write a function that takes a list of lists and returns a flat list.

@@ -14,19 +14,19 @@ def log(level):
             end = time.perf_counter()
             exec_time = end - start
             info = ''
+            result = obj(*args, **kwargs)
 
             if inspect.isclass(obj):
                 info = (f"Creation time: {start}, Class: {obj.__name__}, " +
                         f"Arguments: {args}")
 
             elif isinstance(obj, types.FunctionType):
-                result = obj(*args, **kwargs)
                 info = (f"Call time: {start}, Exec duration: {exec_time} " +
                         f"Function name: {obj.__name__}, arguments: {args}, " +
                         f"result: {result}")
 
             logger.log(level, info)
-
+            return result
         return wrapper
     return log_decorator
 
